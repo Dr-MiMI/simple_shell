@@ -5,7 +5,6 @@
 #include <string.h>
 
 #define MAX_CMD_LEN 256
-#define MAX_ARGV_NUM 64
 #define MAX_ALIAS_NUM 64
 
 typedef struct alias {
@@ -37,6 +36,8 @@ char *search_path(char *cmd)
 void handle_alias(char *cmd)
 {
     char *name = strtok(&cmd[6], "=");
+    int i; // Declare 'i' here
+
     if (name != NULL)
     {
         char *value = strtok(NULL, "=");
@@ -50,7 +51,7 @@ void handle_alias(char *cmd)
         else
         {
             /* Print existing alias */
-            for (int i = 0; i < alias_count; i++)
+            for (i = 0; i < alias_count; i++) // Use 'i' here
             {
                 if (strcmp(aliases[i].name, name) == 0)
                 {
@@ -63,11 +64,18 @@ void handle_alias(char *cmd)
     else
     {
         /* Print all aliases */
-        for (int i = 0; i < alias_count; i++)
+        for (i = 0; i < alias_count; i++) // Use 'i' here
         {
             printf("%s='%s'\n", aliases[i].name, aliases[i].value);
         }
     }
+}
+
+// Placeholder for execute_command function - you need to define this function or include its header
+int execute_command(char *cmd, char **envp)
+{
+    // Implement your execute_command logic here
+    return 0; // For now, return 0 as a placeholder
 }
 
 int main(int argc, char **argv, char **envp)
