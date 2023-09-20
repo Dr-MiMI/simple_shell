@@ -72,11 +72,7 @@ void handle_alias(char *cmd)
 }
 
 // Placeholder for execute_command function - you need to define this function or include its header
-int execute_command(char *cmd, char **envp)
-{
-    // Implement your execute_command logic here
-    return 0; // For now, return 0 as a placeholder
-}
+int execute_command(char *cmd, char **envp);
 
 int main(int argc, char **argv, char **envp)
 {
