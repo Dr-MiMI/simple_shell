@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/wait.h>  // Include the sys/wait.h header
 
 #define MAX_CMD_LEN 256
 #define MAX_ARGV_NUM 64
