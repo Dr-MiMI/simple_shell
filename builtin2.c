@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <sys/wait.h>  // Include the sys/wait.h header
+#include <sys/wait.h>  /* Include the sys/wait.h header */
 
 #define MAX_CMD_LEN 256
 #define MAX_ARGV_NUM 64
@@ -34,6 +34,9 @@ int main(int argc, char **argv, char **envp)
     char *token;
     int i;
     char *fullpath;
+
+    (void)argc;  // Suppress unused parameter warning
+    (void)argv;  // Suppress unused parameter warning
 
     while (1)
     {
