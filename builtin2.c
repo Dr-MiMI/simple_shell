@@ -35,8 +35,8 @@ int main(int argc, char **argv, char **envp)
     int i;
     char *fullpath;
 
-    (void)argc;  // Suppress unused parameter warning
-    (void)argv;  // Suppress unused parameter warning
+    (void)argc;  /* Suppress unused parameter warning*/
+    (void)argv;  /* Suppress unused parameter warning*/
 
     while (1)
     {

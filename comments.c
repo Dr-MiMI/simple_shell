@@ -42,7 +42,28 @@ int split(char *str, char **args)
             args[i++] = str;
         }
         while (*str != '\0' && !isspace(*str))
+        {#include "shell.h"                                #include <stdio.h>
+#include <stdlib.h>                               #include <unistd.h>                               #include <string.h>
+                                                  #define MAX_CMD_LEN 256
+#define MAX_NUM_ARGS 10                                                                             /* Function to check if a command exists */       int command_exists(char *cmd)                     {
+    char *path = getenv("PATH");                      char *p = strtok(path, ":");                      char full_path[MAX_CMD_LEN];
+                                                      while (p != NULL)                                 {                                                     snprintf(full_path, sizeof(full_path), "%s/%s", p, cmd);                                            if (access(full_path, F_OK) == 0)
+        {                                                     return 1;
+        }
+        p = strtok(NULL, ":");
+    }
+
+    return 0;                                     }
+
+/* Function to split a string into words */
+int split(char *str, char **args)
+{
+    int i = 0;                                        while (*str != '\0')
+    {
+        while (isspace(*str))
         {
+            *str++ = '\0';
+        }
             str++;
         }
     }

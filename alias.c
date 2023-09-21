@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/wait.h>
 
 #define MAX_CMD_LEN 256
 #define MAX_ARGV_NUM 64
@@ -13,6 +14,10 @@ int main(void)
     int status;
     char *token;
     int i;
+
+    struct Alias
+aliases[MAX_ARGV_NUM];
+    int aliasCount = 0;
 
     while (1)
     {
@@ -31,7 +36,13 @@ int main(void)
             i++;
             token = strtok(NULL, " ");
         }
-        argv[i] = NULL;
+        argv[i] = NULL;if (argv[0] && argv[1] && strcmp(argv[0], "alias") == 0) {
+            char *aliasName = argv[1];
+            char *aliasValue = argv[2];
+
+            /* Store the alias*/
+            aliases[aliasCount].name = strdup(aliasName);
+            aliases[aliasCount].value = strdup(aliasValue);
 
         if (fork() == 0)
         {
@@ -55,4 +66,3 @@ int main(void)
 
     return (0);
 }
-
