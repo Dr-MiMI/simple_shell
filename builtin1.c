@@ -1,92 +1,97 @@
 #include "shell.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
 
-#define MAX_CMD_LEN 256
-#define MAX_ARGV_NUM 64
-
-char *search_path(char *cmd)
+/**
+ * shell_exit - terminates the shell
+ * @info: Structure containing potential arguments. Used to maintain
+ *          constant function prototype.
+ *  Return: terminates with a given exit status
+ *         (0) if info.argv[0] != "exit"
+ */
+int shell_exit(info_t *info)
 {
-    char *path = getenv("PATH");
-    char *p = strtok(path, ":");
-    char *fullpath = malloc(MAX_CMD_LEN);
-    
-    while (p != NULL)
-    {
-        snprintf(fullpath, MAX_CMD_LEN, "%s/%s", p, cmd);
-        if (access(fullpath, X_OK) == 0)
-            return fullpath;
-        p = strtok(NULL, ":");
-    }
-    
-    free(fullpath);
-    return NULL;
+	int exit_status_check;
+
+	if (info->argv[1])  /* If there is an exit argument */
+	{
+		exit_status_check = _erratoi(info->argv[1]);
+		if (exit_status_check == -1)
+		{
+			info->status = 2;
+			print_error(info, "Invalid number: ");
+			_eputs(info->argv[1]);
+			_eputchar('\n');
+			return (1);
+		}
+		info->err_num = _erratoi(info->argv[1]);
+		return (-2);
+	}
+	info->err_num = -1;
+	return (-2);
 }
 
-int main(void)
+/**
+ * shell_cd - changes the current directory of the process
+ * @info: Structure containing potential arguments. Used to maintain
+ *          constant function prototype.
+ *  Return: Always 0
+ */
+int shell_cd(info_t *info)
 {
-    char cmd[MAX_CMD_LEN];
-    char *argv[MAX_ARGV_NUM];
-    int status;
-    char *token;
-    int i;
-    char *fullpath;
+	char *current_dir, *dir, buffer[1024];
+	int chdir_return;
 
-    while (1)
-    {
-        printf("$ ");
-        fgets(cmd, MAX_CMD_LEN, stdin);
+	current_dir = getcwd(buffer, 1024);
+	if (!current_dir)
+		_puts("Error: Unable to get current directory.\n");
+	if (!info->argv[1])
+	{
+		dir = _getenv(info, "HOME=");
+		if (!dir)
+			chdir_return = chdir((dir = _getenv(info, "PWD=")) ? dir : "/");
+		else
+			chdir_return = chdir(dir);
+	}
+	else if (_strcmp(info->argv[1], "-") == 0)
+	{
+		if (!_getenv(info, "OLDPWD="))
+		{
+			_puts(current_dir);
+			_putchar('\n');
+			return (1);
+		}
+		_puts(_getenv(info, "OLDPWD=")), _putchar('\n');
+		chdir_return = chdir((dir = _getenv(info, "OLDPWD=")) ? dir : "/");
+	}
+	else
+		chdir_return = chdir(info->argv[1]);
+	if (chdir_return == -1)
+	{
+		print_error(info, "Unable to change directory to ");
+		_eputs(info->argv[1]), _eputchar('\n');
+	}
+	else
+	{
+		_setenv(info, "OLDPWD", _getenv(info, "PWD="));
+		_setenv(info, "PWD", getcwd(buffer, 1024));
+	}
+	return (0);
+}
 
-        /* Remove trailing newline character */
-        cmd[strcspn(cmd, "\n")] = '\0';
+/**
+ * shell_help - provides help information for shell commands
+ * @info: Structure containing potential arguments. Used to maintain
+ *          constant function prototype.
+ *  Return: Always 0
+ */
+int shell_help(info_t *info)
+{
+	char **arg_array;
 
-        /* Check for exit command */
-        if (strcmp(cmd, "exit") == 0)
-            exit(EXIT_SUCCESS);
-
-        /* Tokenize the command string into an array of arguments */
-        i = 0;
-        token = strtok(cmd, " ");
-        while (token != NULL)
-        {
-            argv[i] = token;
-            i++;
-            token = strtok(NULL, " ");
-        }
-        argv[i] = NULL;
-
-        fullpath = search_path(argv[0]);
-        
-        if (fullpath == NULL)
-        {
-            printf("Command not found\n");
-            continue;
-        }
-
-        if (fork() == 0)
-        {
-            /* Child process */
-            if (execve(fullpath, argv, NULL) == -1)
-            {
-                perror("Error");
-            }
-            exit(EXIT_FAILURE);
-        }
-        else
-        {
-            /* Parent process */
-            wait(&status);
-            if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
-            {
-                printf("Command not found\n");
-            }
-        }
-        
-        free(fullpath);
-    }
-
-    return (0);
+	arg_array = info->argv;
+	if (0)
+        _puts(*arg_array); /* temp att_unused workaround */
+    _puts("Help function called. Function not yet implemented.\n");
+	
+	return (0);
 }
 
