@@ -7,20 +7,23 @@
 #define MAX_CMD_LEN 256
 #define MAX_ARGV_NUM 64
 
-int main(void)
-{
+// Define a struct for aliases
+struct Alias {
+    char *name;
+    char *value;
+};
+
+int main(void) {
     char cmd[MAX_CMD_LEN];
     char *argv[MAX_ARGV_NUM];
     int status;
     char *token;
     int i;
 
-    struct Alias
-aliases[MAX_ARGV_NUM];
+    struct Alias aliases[MAX_ARGV_NUM];
     int aliasCount = 0;
 
-    while (1)
-    {
+    while (1) {
         printf("$ ");
         fgets(cmd, MAX_CMD_LEN, stdin);
 
@@ -30,39 +33,50 @@ aliases[MAX_ARGV_NUM];
         /* Tokenize the command string into an array of arguments */
         i = 0;
         token = strtok(cmd, " ");
-        while (token != NULL)
-        {
+        while (token != NULL) {
             argv[i] = token;
             i++;
             token = strtok(NULL, " ");
         }
-        argv[i] = NULL;if (argv[0] && argv[1] && strcmp(argv[0], "alias") == 0) {
+        argv[i] = NULL;
+
+        // Handle aliases
+        if (argv[0] && argv[1] && strcmp(argv[0], "alias") == 0) {
             char *aliasName = argv[1];
             char *aliasValue = argv[2];
 
-            /* Store the alias*/
+            /* Store the alias */
             aliases[aliasCount].name = strdup(aliasName);
             aliases[aliasCount].value = strdup(aliasValue);
+            aliasCount++;
+        } else {
+            // Handle other commands or aliases here
+            // ...
 
-        if (fork() == 0)
-        {
-            /* Child process */
-            if (execve(argv[0], argv, NULL) == -1)
-            {
-                perror("Error");
+            // Example: Check if the command is an alias
+            for (int j = 0; j < aliasCount; j++) {
+                if (strcmp(argv[0], aliases[j].name) == 0) {
+                    strcpy(argv[0], aliases[j].value);
+                    break;
+                }
             }
-            exit(EXIT_FAILURE);
-        }
-        else
-        {
-            /* Parent process */
-            wait(&status);
-            if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
-            {
-                printf("Command not found\n");
+
+            if (fork() == 0) {
+                /* Child process */
+                if (execvp(argv[0], argv) == -1) {
+                    perror("Error");
+                    exit(EXIT_FAILURE);
+                }
+            } else {
+                /* Parent process */
+                wait(&status);
+                if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
+                    printf("Command not found\n");
+                }
             }
         }
     }
 
     return (0);
 }
+
